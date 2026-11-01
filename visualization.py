@@ -1,11 +1,8 @@
 """
 visualization.py
 ----------------
-Module for visualizing historical weather data, model comparisons, and
-confusion matrices using Matplotlib ONLY (strictly complying with lab restrictions).
-
-Part of: Weather Prediction Using Data Mining Techniques
-Lab: Data Mining and Warehousing Lab (CSAD2500)
+Simple, clean Matplotlib visualizations for the Weather Prediction project.
+Adheres strictly to Data Mining Lab (CSAD2500) requirements.
 """
 
 import os
@@ -14,156 +11,119 @@ import numpy as np
 import pandas as pd
 
 
+def _finish_plot(show: bool = True, save_path: str = None):
+    """Helper to save and optionally display a plot."""
+    if save_path:
+        os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
+        plt.savefig(save_path, dpi=200, bbox_inches="tight")
+        print(f"[Plot Saved] {save_path}")
+    if show:
+        plt.show()
+    plt.close()
+
+
 def plot_model_comparison(results: dict, show: bool = True, save_path: str = None):
     """
-    Plots a grouped bar chart comparing Decision Tree and Gaussian Naive Bayes
-    on Accuracy and Rainy-Class Recall.
+    Plots a simple bar chart comparing Decision Tree and Naive Bayes
+    on Accuracy and Rain Recall.
     """
     dt_m = results["metrics"]["Decision Tree"]
     nb_m = results["metrics"]["Gaussian Naive Bayes"]
 
     models = ["Decision Tree", "Gaussian Naive Bayes"]
-    accuracy_scores = [dt_m["accuracy"] * 100, nb_m["accuracy"] * 100]
-    recall_scores = [dt_m["rain_recall"] * 100, nb_m["rain_recall"] * 100]
+    accuracies = [dt_m["accuracy"] * 100, nb_m["accuracy"] * 100]
+    recalls = [dt_m["rain_recall"] * 100, nb_m["rain_recall"] * 100]
 
     x = np.arange(len(models))
-    width = 0.32
+    width = 0.35
 
-    fig, ax = plt.subplots(figsize=(8, 5))
-    rects1 = ax.bar(x - width / 2, accuracy_scores, width, label="Overall Accuracy (%)", color="#2ecc71", edgecolor="black")
-    rects2 = ax.bar(x + width / 2, recall_scores, width, label="Rainy-Class Recall (%)", color="#e67e22", edgecolor="black")
+    plt.figure(figsize=(7, 4.5))
+    plt.bar(x - width / 2, accuracies, width, label="Accuracy (%)", color="#3498db")
+    plt.bar(x + width / 2, recalls, width, label="Rain Recall (%)", color="#e67e22")
 
-    for rect in rects1:
-        h = rect.get_height()
-        ax.annotate(f"{h:.1f}%", xy=(rect.get_x() + rect.get_width() / 2, h),
-                    xytext=(0, 4), textcoords="offset points", ha="center", va="bottom", fontweight="bold")
+    plt.title("Model Performance Comparison", fontsize=12, fontweight="bold")
+    plt.xticks(x, models, fontsize=10)
+    plt.ylabel("Score (%)")
+    plt.ylim(0, 105)
+    plt.legend()
+    plt.grid(axis="y", linestyle="--", alpha=0.5)
 
-    for rect in rects2:
-        h = rect.get_height()
-        ax.annotate(f"{h:.1f}%", xy=(rect.get_x() + rect.get_width() / 2, h),
-                    xytext=(0, 4), textcoords="offset points", ha="center", va="bottom", fontweight="bold")
-
-    ax.set_title("ML Model Performance Comparison", fontsize=13, fontweight="bold")
-    ax.set_xticks(x)
-    ax.set_xticklabels(models, fontsize=11, fontweight="bold")
-    ax.set_ylabel("Score (%)", fontsize=11)
-    ax.set_ylim(0, 110)
-    ax.legend(loc="upper right", fontsize=10)
-    ax.grid(axis="y", linestyle="--", alpha=0.7)
+    # Add score text on top of bars
+    for i in range(len(models)):
+        plt.text(x[i] - width / 2, accuracies[i] + 1.5, f"{accuracies[i]:.1f}%", ha="center", fontsize=9)
+        plt.text(x[i] + width / 2, recalls[i] + 1.5, f"{recalls[i]:.1f}%", ha="center", fontsize=9)
 
     plt.tight_layout()
-    if save_path:
-        plt.savefig(save_path, dpi=200)
-        print(f"[Plot Saved] {save_path}")
-    if show:
-        plt.show()
-    plt.close()
+    _finish_plot(show, save_path)
 
 
 def plot_confusion_matrices(results: dict, show: bool = True, save_path: str = None):
     """
-    Plots side-by-side Confusion Matrices for Decision Tree and Gaussian Naive Bayes
-    using Matplotlib imshow and text annotations.
+    Plots side-by-side Confusion Matrices for Decision Tree and Naive Bayes.
     """
     dt_cm = results["metrics"]["Decision Tree"]["confusion_matrix"]
     nb_cm = results["metrics"]["Gaussian Naive Bayes"]["confusion_matrix"]
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 5))
-    cms = [("Decision Tree", dt_cm), ("Gaussian Naive Bayes", nb_cm)]
-    classes = ["No Rain (0)", "Rain (1)"]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4))
+    cms = [(ax1, "Decision Tree", dt_cm), (ax2, "Gaussian Naive Bayes", nb_cm)]
 
-    for ax, (title, cm) in zip(axes, cms):
-        cax = ax.imshow(cm, interpolation="nearest", cmap="Blues")
-        ax.set_title(f"{title} Confusion Matrix", fontsize=12, fontweight="bold")
-        fig.colorbar(cax, ax=ax, fraction=0.046, pad=0.04)
+    for ax, name, cm in cms:
+        ax.imshow(cm, cmap="Blues")
+        ax.set_title(f"{name} Matrix", fontsize=11, fontweight="bold")
+        ax.set_xticks([0, 1])
+        ax.set_xticklabels(["No Rain", "Rain"])
+        ax.set_yticks([0, 1])
+        ax.set_yticklabels(["No Rain", "Rain"])
+        ax.set_xlabel("Predicted")
+        ax.set_ylabel("Actual")
 
-        tick_marks = np.arange(len(classes))
-        ax.set_xticks(tick_marks)
-        ax.set_xticklabels(classes, fontsize=10)
-        ax.set_yticks(tick_marks)
-        ax.set_yticklabels(classes, fontsize=10)
-
-        # Annotate cells with TN, FP, FN, TP labels and counts
-        tag_map = [["True Neg (TN)", "False Pos (FP)"], ["False Neg (FN)", "True Pos (TP)"]]
-        thresh = cm.max() / 2.0
-        for i in range(cm.shape[0]):
-            for j in range(cm.shape[1]):
-                color = "white" if cm[i, j] > thresh else "black"
-                ax.text(
-                    j, i, f"{cm[i, j]}\n({tag_map[i][j]})",
-                    ha="center", va="center",
-                    color=color, fontsize=10, fontweight="bold"
-                )
-
-        ax.set_xlabel("Predicted Label", fontsize=11)
-        ax.set_ylabel("Actual Label", fontsize=11)
+        # Put numbers in matrix cells
+        for i in range(2):
+            for j in range(2):
+                ax.text(j, i, str(cm[i, j]), ha="center", va="center", fontsize=12, fontweight="bold")
 
     plt.tight_layout()
-    if save_path:
-        plt.savefig(save_path, dpi=200)
-        print(f"[Plot Saved] {save_path}")
-    if show:
-        plt.show()
-    plt.close()
+    _finish_plot(show, save_path)
 
 
 def plot_historical_trends(df: pd.DataFrame, show: bool = True, save_path: str = None):
     """
-    Plots monthly historical weather trends (Average Temperature and Monthly Rainfall)
-    over the 3-year record period.
+    Plots monthly average temperature and total rainfall over time.
     """
     df_copy = df.copy()
-    if "date" in df_copy.columns:
-        df_copy["date"] = pd.to_datetime(df_copy["date"])
-        df_copy.set_index("date", inplace=True)
-    else:
+    if "date" not in df_copy.columns:
         return
 
-    # Monthly aggregation (compatible with pandas < 2.2 'M' and >= 2.2 'ME')
-    freq = "ME"
-    try:
-        monthly = df_copy.resample("ME").agg({
-            "temperature_c": "mean",
-            "precipitation_mm": "sum" if "precipitation_mm" in df_copy.columns else "count"
-        })
-    except (ValueError, KeyError):
-        monthly = df_copy.resample("M").agg({
-            "temperature_c": "mean",
-            "precipitation_mm": "sum" if "precipitation_mm" in df_copy.columns else "count"
-        })
+    df_copy["date"] = pd.to_datetime(df_copy["date"])
+    monthly = df_copy.groupby(df_copy["date"].dt.to_period("M")).mean(numeric_only=True)
+    months = monthly.index.astype(str)
 
-    fig, ax1 = plt.subplots(figsize=(12, 5))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
 
-    color_temp = "#e74c3c"
-    ax1.set_xlabel("Timeline (Month)", fontsize=11)
-    ax1.set_ylabel("Mean Temperature (°C)", color=color_temp, fontsize=11)
-    line1 = ax1.plot(monthly.index, monthly["temperature_c"], color=color_temp, marker="o", linewidth=2, label="Mean Temp (°C)")
-    ax1.tick_params(axis="y", labelcolor=color_temp)
+    # 1. Temperature Trend
+    ax1.plot(months, monthly["temperature_c"], color="#e74c3c", marker="o", linewidth=2)
+    ax1.set_ylabel("Avg Temp (°C)")
+    ax1.set_title("Historical Weather Trends in Delhi (Monthly)", fontsize=12, fontweight="bold")
+    ax1.grid(True, linestyle="--", alpha=0.5)
 
-    ax2 = ax1.twinx()
-    color_rain = "#2980b9"
-    ax2.set_ylabel("Total Precipitation (mm)", color=color_rain, fontsize=11)
-    line2 = ax2.bar(monthly.index, monthly["precipitation_mm"], width=15, alpha=0.4, color=color_rain, label="Total Rain (mm)")
-    ax2.tick_params(axis="y", labelcolor=color_rain)
+    # 2. Rainfall Trend
+    if "precipitation_mm" in df_copy.columns:
+        monthly_rain = df_copy.groupby(df_copy["date"].dt.to_period("M"))["precipitation_mm"].sum()
+        ax2.bar(months, monthly_rain, color="#3498db", alpha=0.7)
+        ax2.set_ylabel("Total Rain (mm)")
+    ax2.set_xlabel("Month")
+    ax2.grid(True, linestyle="--", alpha=0.5)
+    plt.xticks(rotation=45, ha="right", fontsize=9)
 
-    plt.title("Historical Weather Trends in Delhi (2023–2025)", fontsize=13, fontweight="bold")
-    fig.tight_layout()
-
-    if save_path:
-        plt.savefig(save_path, dpi=200)
-        print(f"[Plot Saved] {save_path}")
-    if show:
-        plt.show()
-    plt.close()
+    plt.tight_layout()
+    _finish_plot(show, save_path)
 
 
 def plot_all_visualizations(df: pd.DataFrame, results: dict, show: bool = True, save_dir: str = None):
     """
-    Generates and displays all key plots sequentially.
+    Generates and saves all visualizations.
     """
     print("\n[Visualizations] Generating Matplotlib charts...")
-    os.makedirs(save_dir, exist_ok=True) if save_dir else None
-
     p1 = os.path.join(save_dir, "model_comparison.png") if save_dir else None
     p2 = os.path.join(save_dir, "confusion_matrices.png") if save_dir else None
     p3 = os.path.join(save_dir, "historical_trends.png") if save_dir else None
