@@ -18,11 +18,7 @@ import pandas as pd
 
 # Modular project imports
 from data_collection import (
-    load_or_fetch_historical_data,
-    fetch_historical_weather,
-    save_historical_data,
-    FEATURE_COLUMNS,
-    TARGET_COLUMN
+    load_or_fetch_historical_data
 )
 from model_training import (
     train_and_evaluate_models,
@@ -72,7 +68,7 @@ def handle_train_models(df: pd.DataFrame):
 def handle_live_prediction(results: dict):
     """Prompts user for a city name, fetches forecast, and predicts tomorrow's weather."""
     if results is None:
-        print("[Error] Please train the models first (Option 1).")
+        print("[Error] Trained models are not available.")
         return
 
     city_name = input("\nEnter city name (e.g., Delhi, Mumbai, London, New York): ").strip()
@@ -101,43 +97,10 @@ def handle_live_prediction(results: dict):
     display_forecast_and_prediction(geo, forecast, prediction)
 
 
-def handle_manual_prediction(results: dict):
-    """Allows manual entry of weather conditions (preserves original project behavior)."""
-    if results is None:
-        print("[Error] Please train the models first (Option 1).")
-        return
-
-    print("\n========== ENTER MANUAL WEATHER CONDITIONS ==========")
-    try:
-        temp = float(input("Temperature (°C)   : "))
-        humidity = float(input("Humidity (%)       : "))
-        pressure = float(input("Pressure (hPa)     : "))
-        wind = float(input("Wind speed (km/h)  : "))
-        cloud = float(input("Cloud cover (%)    : "))
-    except ValueError:
-        print("[Error] Invalid input. Please enter numerical values.")
-        return
-
-    manual_features = {
-        "temperature_c": temp,
-        "humidity_percent": humidity,
-        "pressure_hpa": pressure,
-        "wind_speed_kmh": wind,
-        "cloud_cover_percent": cloud
-    }
-    prediction = predict_tomorrow_weather(results["models"], manual_features)
-
-    print("\n" + "-" * 50)
-    print("MANUAL WEATHER INPUT ML PREDICTION:")
-    print(f"  - Decision Tree Prediction : {prediction['dt_label']}")
-    print(f"  - Naive Bayes Prediction   : {prediction['nb_label']}")
-    print("-" * 50)
-
-
 def handle_visualizations(df: pd.DataFrame, results: dict):
     """Offers submenu for interactive Matplotlib visualizations."""
     if results is None:
-        print("[Error] Please train the models first (Option 1).")
+        print("[Error] Trained models are not available.")
         return
 
     while True:
@@ -183,64 +146,42 @@ def main():
                 df["rain_today"] = df["rain_tomorrow"]
             results = handle_train_models(df)
         else:
-            print("[Error] No dataset available. Please refresh dataset using Option 6.")
+            print("[Error] No dataset available.")
 
     # Interactive Loop
     while True:
         print("\n" + "=" * 50)
         print("                MAIN MENU")
         print("=" * 50)
-        print("1. Train models using historical data")
-        print("2. View model evaluation and performance comparison")
-        print("3. Predict tomorrow's weather for a city (Live API)")
-        print("4. Enter manual weather conditions for prediction")
-        print("5. View visualizations (Matplotlib)")
-        print("6. Refresh / re-download historical dataset")
-        print("7. Exit")
+        print("1. View model evaluation and performance comparison")
+        print("2. Predict tomorrow's weather for a city (Live API)")
+        print("3. View visualizations (Matplotlib)")
+        print("4. Exit")
         print("=" * 50)
 
-        choice = input("Enter your choice (1-7): ").strip()
+        choice = input("Enter your choice (1-4): ").strip()
 
         if choice == "1":
-            if df is not None:
-                results = handle_train_models(df)
-            else:
-                print("[Error] No dataset loaded. Please refresh historical data (Option 6).")
-
-        elif choice == "2":
             if results is not None:
                 display_model_evaluation(results)
             else:
-                print("[Error] Models not trained yet. Select Option 1 first.")
+                print("[Error] Models are not available.")
 
-        elif choice == "3":
+        elif choice == "2":
             handle_live_prediction(results)
 
-        elif choice == "4":
-            handle_manual_prediction(results)
-
-        elif choice == "5":
+        elif choice == "3":
             if df is not None and results is not None:
                 handle_visualizations(df, results)
             else:
-                print("[Error] Data or trained models not available. Select Option 1 first.")
+                print("[Error] Data or trained models not available.")
 
-        elif choice == "6":
-            confirm = input("Re-download historical records from Open-Meteo Archive API? (y/n): ").strip().lower()
-            if confirm in ["y", "yes"]:
-                try:
-                    df = fetch_historical_weather()
-                    save_historical_data(df, HISTORICAL_CSV_PATH)
-                    results = handle_train_models(df)
-                except Exception as e:
-                    print(f"[Error] Failed to refresh historical data: {e}")
-
-        elif choice == "7":
+        elif choice == "4":
             print("\nExiting Weather Prediction application. Goodbye!")
             sys.exit(0)
 
         else:
-            print("[Error] Invalid choice. Please enter a number from 1 to 7.")
+            print("[Error] Invalid choice. Please enter a number from 1 to 4.")
 
 
 if __name__ == "__main__":

@@ -150,18 +150,15 @@ python weather_prediction.py
 ==================================================
                 MAIN MENU
 ==================================================
-1. Train models using historical data
-2. View model evaluation and performance comparison
-3. Predict tomorrow's weather for a city (Live API)
-4. Enter manual weather conditions for prediction
-5. View visualizations (Matplotlib)
-6. Refresh / re-download historical dataset
-7. Exit
+1. View model evaluation and performance comparison
+2. Predict tomorrow's weather for a city (Live API)
+3. View visualizations (Matplotlib)
+4. Exit
 ==================================================
 ```
 
 ### Live City Prediction Workflow:
-1. Select Option `3`.
+1. Select Option `2`.
 2. Enter city name (e.g., `Delhi`, `Mumbai`, `London`, `Tokyo`).
 3. The system geocodes the city, queries Open-Meteo for tomorrow's forecast, extracts the 5 features, and feeds them into both trained models.
 4. Output displays tomorrow's forecasted atmospheric conditions alongside predictions:
