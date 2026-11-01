@@ -23,7 +23,7 @@ Most educational projects rely on synthetic CSVs or suffer from a **training/inf
 - **Classification Modeling:** Implement Decision Tree Classifier and Gaussian Naive Bayes using Scikit-learn with stratified 70/30 train/test splitting.
 - **Model Evaluation:** Calculate genuine Accuracy, Confusion Matrix, and Classification Reports (Precision, Recall, F1-score) from real data.
 - **Real-Time Forecasting:** Integrate the Open-Meteo Geocoding and Forecast APIs to accept any global city name, retrieve tomorrow's forecasted features, and predict rainfall likelihood.
-- **Visualization:** Generate clear Matplotlib visualizations (class distributions, confusion matrices, performance comparison, and historical trends).
+- **Visualization:** Generate clear Matplotlib visualizations (confusion matrices, performance comparison, and historical trends).
 
 ---
 
@@ -61,7 +61,6 @@ Weather_Prediction_Project_A_Lab_Compatible/
 │   └── weather_sample.csv        # Retained synthetic sample CSV (backward compatibility fallback)
 │
 ├── plots/                        # Generated Matplotlib charts (saved as PNG)
-│   ├── rain_distribution.png
 │   ├── model_comparison.png
 │   ├── confusion_matrices.png
 │   └── historical_trends.png

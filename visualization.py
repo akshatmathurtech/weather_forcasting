@@ -14,47 +14,6 @@ import numpy as np
 import pandas as pd
 
 
-def plot_rain_distribution(df: pd.DataFrame, show: bool = True, save_path: str = None):
-    """
-    Plots the distribution of Rain vs No Rain in the historical dataset.
-    """
-    target_col = "rain_today" if "rain_today" in df.columns else "rain_tomorrow"
-    counts = df[target_col].value_counts().sort_index()
-
-    labels = ["No Rain (0)", "Rain (1)"]
-    values = [counts.get(0, 0), counts.get(1, 0)]
-    percentages = [v / sum(values) * 100 for v in values]
-
-    fig, ax = plt.subplots(figsize=(7, 5))
-    bars = ax.bar(labels, values, color=["#3498db", "#e74c3c"], width=0.5, edgecolor="black")
-
-    for bar, val, pct in zip(bars, values, percentages):
-        height = bar.get_height()
-        ax.annotate(
-            f"{val} days\n({pct:.1f}%)",
-            xy=(bar.get_x() + bar.get_width() / 2, height),
-            xytext=(0, 5),
-            textcoords="offset points",
-            ha="center",
-            va="bottom",
-            fontsize=10,
-            fontweight="bold"
-        )
-
-    ax.set_title("Historical Rainfall Class Distribution (Delhi 2023–2025)", fontsize=13, fontweight="bold")
-    ax.set_ylabel("Number of Days", fontsize=11)
-    ax.set_ylim(0, max(values) * 1.2)
-    ax.grid(axis="y", linestyle="--", alpha=0.7)
-
-    plt.tight_layout()
-    if save_path:
-        plt.savefig(save_path, dpi=200)
-        print(f"[Plot Saved] {save_path}")
-    if show:
-        plt.show()
-    plt.close()
-
-
 def plot_model_comparison(results: dict, show: bool = True, save_path: str = None):
     """
     Plots a grouped bar chart comparing Decision Tree and Gaussian Naive Bayes
@@ -205,15 +164,13 @@ def plot_all_visualizations(df: pd.DataFrame, results: dict, show: bool = True, 
     print("\n[Visualizations] Generating Matplotlib charts...")
     os.makedirs(save_dir, exist_ok=True) if save_dir else None
 
-    p1 = os.path.join(save_dir, "rain_distribution.png") if save_dir else None
-    p2 = os.path.join(save_dir, "model_comparison.png") if save_dir else None
-    p3 = os.path.join(save_dir, "confusion_matrices.png") if save_dir else None
-    p4 = os.path.join(save_dir, "historical_trends.png") if save_dir else None
+    p1 = os.path.join(save_dir, "model_comparison.png") if save_dir else None
+    p2 = os.path.join(save_dir, "confusion_matrices.png") if save_dir else None
+    p3 = os.path.join(save_dir, "historical_trends.png") if save_dir else None
 
-    plot_rain_distribution(df, show=show, save_path=p1)
-    plot_model_comparison(results, show=show, save_path=p2)
-    plot_confusion_matrices(results, show=show, save_path=p3)
-    plot_historical_trends(df, show=show, save_path=p4)
+    plot_model_comparison(results, show=show, save_path=p1)
+    plot_confusion_matrices(results, show=show, save_path=p2)
+    plot_historical_trends(df, show=show, save_path=p3)
     print("[Visualizations] All charts displayed successfully.")
 
 

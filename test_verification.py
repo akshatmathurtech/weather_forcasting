@@ -108,7 +108,6 @@ def run_all_tests():
     plot_all_visualizations(df, results, show=False, save_dir=str(PLOTS_DIR))
 
     expected_plots = [
-        "rain_distribution.png",
         "model_comparison.png",
         "confusion_matrices.png",
         "historical_trends.png"

@@ -35,7 +35,6 @@ from live_forecast import (
     display_forecast_and_prediction
 )
 from visualization import (
-    plot_rain_distribution,
     plot_model_comparison,
     plot_confusion_matrices,
     plot_historical_trends,
@@ -143,28 +142,25 @@ def handle_visualizations(df: pd.DataFrame, results: dict):
 
     while True:
         print("\n--- VISUALIZATION MENU (Matplotlib) ---")
-        print("1. Rain vs No Rain Class Distribution")
-        print("2. Decision Tree vs Naive Bayes Accuracy & Recall Comparison")
-        print("3. Confusion Matrices for Both Models")
-        print("4. Historical Weather Trends (Monthly Temp & Rain)")
-        print("5. Generate and Display All Visualizations")
-        print("6. Return to Main Menu")
+        print("1. Decision Tree vs Naive Bayes Accuracy & Recall Comparison")
+        print("2. Confusion Matrices for Both Models")
+        print("3. Historical Weather Trends (Monthly Temp & Rain)")
+        print("4. Generate and Display All Visualizations")
+        print("5. Return to Main Menu")
 
-        vchoice = input("Enter visualization choice (1-6): ").strip()
+        vchoice = input("Enter visualization choice (1-5): ").strip()
         if vchoice == "1":
-            plot_rain_distribution(df, show=True)
-        elif vchoice == "2":
             plot_model_comparison(results, show=True)
-        elif vchoice == "3":
+        elif vchoice == "2":
             plot_confusion_matrices(results, show=True)
-        elif vchoice == "4":
+        elif vchoice == "3":
             plot_historical_trends(df, show=True)
-        elif vchoice == "5":
+        elif vchoice == "4":
             plot_all_visualizations(df, results, show=True, save_dir=PLOTS_DIR)
-        elif vchoice == "6":
+        elif vchoice == "5":
             break
         else:
-            print("[Error] Invalid choice. Please enter a number between 1 and 6.")
+            print("[Error] Invalid choice. Please enter a number between 1 and 5.")
 
 
 def main():
